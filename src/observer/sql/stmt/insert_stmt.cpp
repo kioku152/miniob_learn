@@ -47,8 +47,23 @@ RC InsertStmt::create(Db *db, const InsertSqlNode &inserts, Stmt *&stmt)
     return RC::SCHEMA_FIELD_MISSING;
   }
 
-  // check fields type
   const int sys_field_num = table_meta.sys_field_num();
+
+  for(int i = 0; i < value_num; i++)
+ { 
+  const FieldMeta *field_meta = table_meta.field(i + sys_field_num);
+  const AttrType   field_type = field_meta->type();
+  if(field_type==DATES)
+  {
+    const int date_test_value=values[i].get_date_test();
+  if(date_test_value==-1145){
+    return RC::INVALID_ARGUMENT;
+  }
+  }
+  }
+
+  // check fields type
+
   for (int i = 0; i < value_num; i++) {
     const FieldMeta *field_meta = table_meta.field(i + sys_field_num);
     const AttrType   field_type = field_meta->type();
