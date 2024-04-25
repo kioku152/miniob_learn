@@ -55,6 +55,10 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
 
 //标识tokens
 %token  SEMICOLON
+        MAX_F
+        MIN_F
+        COUNT_F
+        AVG_F
         CREATE
         DROP
         TABLE
@@ -105,7 +109,9 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
   ConditionSqlNode *                condition;
   Value *                           value;
   enum CompOp                       comp;
+  enum AggrOp                       aggr;
   RelAttrSqlNode *                  rel_attr;
+  RelAttrSqlNode *                  rel_attr_aggr;
   std::vector<AttrInfoSqlNode> *    attr_infos;
   AttrInfoSqlNode *                 attr_info;
   Expression *                      expression;
@@ -113,6 +119,7 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
   std::vector<Value> *              value_list;
   std::vector<ConditionSqlNode> *   condition_list;
   std::vector<RelAttrSqlNode> *     rel_attr_list;
+  std::vector<RelAttrSqlNode> *     rel_attr_aggr_list;
   std::vector<std::string> *        relation_list;
   char *                            string;
   int                               number;
@@ -132,13 +139,16 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
 %type <value>               value
 %type <number>              number
 %type <comp>                comp_op
+%type <aggr>                aggr_op
 %type <rel_attr>            rel_attr
+%type <rel_attr>            rel_attr_aggr
 %type <attr_infos>          attr_def_list
 %type <attr_info>           attr_def
 %type <value_list>          value_list
 %type <condition_list>      where
 %type <condition_list>      condition_list
 %type <rel_attr_list>       select_attr
+%type <rel_attr_list>       rel_attr_aggr_list
 %type <relation_list>       rel_list
 %type <rel_attr_list>       attr_list
 %type <expression>          expression
@@ -519,18 +529,84 @@ select_attr:
     }
     ;
 
+aggr_op:
+    MAX_F { $$=AGGR_MAX;}
+    | MIN_F { $$=AGGR_MIN;}
+    | COUNT_F { $$=AGGR_COUNT;}
+    | AVG_F { $$=AGGR_AVG;}    
+    ;
+
 rel_attr:
     ID {
       $$ = new RelAttrSqlNode;
       $$->attribute_name = $1;
       free($1);
+      $$->valid = false;//若同时有聚合语句，则failure
     }
     | ID DOT ID {
-      $$ = new RelAttrSqlNode;
+      $$ = new RelAttrSqlNode; 
       $$->relation_name  = $1;
       $$->attribute_name = $3;
       free($1);
       free($3);
+      $$->valid = false;
+    }
+
+    | aggr_op LBRACE rel_attr_aggr rel_attr_aggr_list RBRACE{
+      $$=$3;
+      $$->aggregation = $1;
+
+      if($4 != nullptr){
+        $$->valid = false;
+        delete $4;
+      }
+
+    }
+    | aggr_op LBRACE RBRACE{
+      $$ = new RelAttrSqlNode;
+      $$->relation_name="";
+      $$->attribute_name="";
+      $$->aggregation = $1;
+
+      $$->valid = false;
+
+    }
+    ;
+
+rel_attr_aggr:
+  '*'{
+    $$ = new RelAttrSqlNode;
+    $$->relation_name="";
+    $$->attribute_name="*";
+  }
+  | ID {
+    $$ = new RelAttrSqlNode;
+    $$->attribute_name = $1;
+    free($1);
+  }
+  | ID DOT ID {
+    $$ = new RelAttrSqlNode;
+    $$->relation_name  = $1;
+    $$->attribute_name = $3;
+    free($1);
+    free($3);
+  }
+  ;
+
+rel_attr_aggr_list:
+    /* empty */
+    {
+      $$ = nullptr;
+    }
+    | COMMA rel_attr_aggr rel_attr_aggr_list {
+      if ($3 != nullptr) {
+        $$ = $3;
+      } else {
+        $$ = new std::vector<RelAttrSqlNode>;
+      }
+
+      $$->emplace_back(*$2);
+      delete $2;
     }
     ;
 
