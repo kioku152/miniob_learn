@@ -209,6 +209,16 @@ RC Table::visit_record(const RID &rid, bool readonly, std::function<void(Record 
   return record_handler_->visit_record(rid, readonly, visitor);
 }
 
+RC Table::update_record(Record &record,int offset,int len,Value &value){
+  RC rc=RC::SUCCESS;
+  rc = record_handler_->update_record(&record.rid(),offset,len,value);
+  if(rc!=RC::SUCCESS){
+    LOG_WARN("failed to update record: %s",strrc(rc));
+    return rc;
+  }
+  return RC::SUCCESS;
+}
+
 RC Table::get_record(const RID &rid, Record &record)
 {
   const int record_size = table_meta_.record_size();

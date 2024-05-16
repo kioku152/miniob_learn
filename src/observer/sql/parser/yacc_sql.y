@@ -541,7 +541,7 @@ rel_attr:
       $$ = new RelAttrSqlNode;
       $$->attribute_name = $1;
       free($1);
-      $$->valid = false;//若同时有聚合语句，则failure
+
     }
     | ID DOT ID {
       $$ = new RelAttrSqlNode; 
@@ -549,7 +549,7 @@ rel_attr:
       $$->attribute_name = $3;
       free($1);
       free($3);
-      $$->valid = false;
+
     }
 
     | aggr_op LBRACE rel_attr_aggr rel_attr_aggr_list RBRACE{
