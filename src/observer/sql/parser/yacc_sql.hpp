@@ -61,48 +61,50 @@ extern int yydebug;
     INDEX = 267,
     CALC = 268,
     SELECT = 269,
-    DESC = 270,
-    SHOW = 271,
-    SYNC = 272,
-    INSERT = 273,
-    DELETE = 274,
-    UPDATE = 275,
-    LBRACE = 276,
-    RBRACE = 277,
-    COMMA = 278,
-    TRX_BEGIN = 279,
-    TRX_COMMIT = 280,
-    TRX_ROLLBACK = 281,
-    INT_T = 282,
-    DATE_T = 283,
-    STRING_T = 284,
-    FLOAT_T = 285,
-    HELP = 286,
-    EXIT = 287,
-    DOT = 288,
-    INTO = 289,
-    VALUES = 290,
-    FROM = 291,
-    WHERE = 292,
-    AND = 293,
-    SET = 294,
-    ON = 295,
-    LOAD = 296,
-    DATA = 297,
-    INFILE = 298,
-    EXPLAIN = 299,
-    EQ = 300,
-    LT = 301,
-    GT = 302,
-    LE = 303,
-    GE = 304,
-    NE = 305,
-    NUMBER = 306,
-    FLOAT = 307,
-    ID = 308,
-    SSS = 309,
-    DATE_STR = 310,
-    UMINUS = 311
+    INNER = 270,
+    JOIN = 271,
+    DESC = 272,
+    SHOW = 273,
+    SYNC = 274,
+    INSERT = 275,
+    DELETE = 276,
+    UPDATE = 277,
+    LBRACE = 278,
+    RBRACE = 279,
+    COMMA = 280,
+    TRX_BEGIN = 281,
+    TRX_COMMIT = 282,
+    TRX_ROLLBACK = 283,
+    INT_T = 284,
+    DATE_T = 285,
+    STRING_T = 286,
+    FLOAT_T = 287,
+    HELP = 288,
+    EXIT = 289,
+    DOT = 290,
+    INTO = 291,
+    VALUES = 292,
+    FROM = 293,
+    WHERE = 294,
+    AND = 295,
+    SET = 296,
+    ON = 297,
+    LOAD = 298,
+    DATA = 299,
+    INFILE = 300,
+    EXPLAIN = 301,
+    EQ = 302,
+    LT = 303,
+    GT = 304,
+    LE = 305,
+    GE = 306,
+    NE = 307,
+    NUMBER = 308,
+    FLOAT = 309,
+    ID = 310,
+    SSS = 311,
+    DATE_STR = 312,
+    UMINUS = 313
   };
 #endif
 
@@ -110,10 +112,11 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 107 "yacc_sql.y"
+#line 109 "yacc_sql.y"
 
   ParsedSqlNode *                   sql_node;
   ConditionSqlNode *                condition;
+  JoinSqlNode *                     joinnode;
   Value *                           value;
   enum CompOp                       comp;
   enum AggrOp                       aggr;
@@ -132,7 +135,7 @@ union YYSTYPE
   int                               number;
   float                             floats;
 
-#line 136 "yacc_sql.hpp"
+#line 139 "yacc_sql.hpp"
 
 };
 typedef union YYSTYPE YYSTYPE;
